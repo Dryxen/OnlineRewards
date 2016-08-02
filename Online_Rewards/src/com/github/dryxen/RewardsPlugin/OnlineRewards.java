@@ -1,8 +1,7 @@
 package com.github.dryxen.RewardsPlugin;
 
+import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
@@ -16,14 +15,14 @@ import com.google.inject.Inject;
 
 @Plugin(id = "onlinerewards", name = "OnlineRewards", version = "0.1")
 public class OnlineRewards {
-	ArrayList player = new ArrayList();
-	ArrayList players = new ArrayList();
 	
+	@Inject
 	@ConfigDir(sharedRoot = false)
 	private Path ConfigDir;
 	
+	@Inject
 	@DefaultConfig(sharedRoot = false)	
-	private Path defaultConfig;
+	private File defaultConfig;
 	
 	@Inject
 	private Logger logger;
@@ -54,6 +53,9 @@ public class OnlineRewards {
 	
 	public Path getConfigDir() {		
 		return ConfigDir;
+	}
+	public File getdefaultConfig(){
+		return defaultConfig;
 	}
 
 }

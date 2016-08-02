@@ -1,5 +1,7 @@
 package com.github.dryxen.commands;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -12,10 +14,18 @@ import org.spongepowered.api.text.Text;
 
 import com.github.dryxen.RewardsPlugin.OnlineRewards;
 
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+
 public class CreateReward {
 	
 	private Logger logger;
 	private CommandSpec commandspec;
+	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
+	private ConfigurationNode rootNode;	
+	
 	
 	public CreateReward(OnlineRewards instance){
 		logger = instance.getLogger();
@@ -29,7 +39,8 @@ public class CreateReward {
 		        		))
 		        .executor(new CommandExecutor() {	            
 		            public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		               //todo setup default config with these params
+		               //todo setup default config with these params		                
+		                configLoader = HoconConfigurationLoader.builder().setFile(instance.getdefaultConfig()).build();
 		                return CommandResult.success();
 		            }
 		        })

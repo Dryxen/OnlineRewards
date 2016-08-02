@@ -1,6 +1,7 @@
 package com.github.dryxen.commands;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandException;
@@ -39,10 +40,22 @@ public class CreateReward {
 		        		))
 		        .executor(new CommandExecutor() {	            
 		            public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		               //todo setup default config with these params		                
+		              	                
 		                configLoader = HoconConfigurationLoader.builder().setFile(instance.getdefaultConfig()).build();
-		                return CommandResult.success();
-		            }
+		                int hours = args.<Integer>getOne("Hours").get();
+		                String item = args.<String>getOne("Item").get();
+		                int amount = args.<Integer>getOne("Amount").get();
+		                try{                	
+		            		rootNode = configLoader.load();	            	    
+		            		rootNode.getNode("Hours:"+hours,"Item").setValue(item);
+		            		rootNode.getNode("Hours:"+hours,"Amount").setValue("Amount:"+amount);
+		            		configLoader.save(rootNode);           		
+		            		
+		                }catch(IOException e){
+		               
+		                }
+		             return CommandResult.success();
+		           }
 		        })
 		        .build();
 		

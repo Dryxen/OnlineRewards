@@ -17,9 +17,10 @@ public class PlayerHandler {
 	private ConfigurationNode rootNode;	
 	private File playerConfig;
 	Logger logger;
-	HashMap<String, String> players = new HashMap<String, String>();
+	String [] claimed;
+	HashMap<String, String[]> players = new HashMap<String, String[]>();
 	
-	public void exportPlayerConfig(OnlineRewards instance, String name, String claimed){
+	public void exportPlayerConfig(OnlineRewards instance, String name, String claimedDate, String claimedTime){
 		
 		logger = instance.getLogger();
 		playerConfig = new File(instance.getConfigDir().toFile(), "Players.conf");
@@ -27,7 +28,9 @@ public class PlayerHandler {
 		try{                	
 			rootNode = configLoader.load();	            	    
 			rootNode.getNode(name);
-			rootNode.getNode(name,"Last Claimed").setValue(claimed);
+			rootNode.getNode(name,"Last Claimed Date").setValue(claimedDate);
+			rootNode.getNode(name,"Last Claimed Time").setValue(claimedTime);
+			
 			configLoader.save(rootNode);           		
 		
 		}catch(IOException e){
@@ -35,16 +38,17 @@ public class PlayerHandler {
 		}
 	}
 	
-	public HashMap<String, String> importPlayerConfig(OnlineRewards instance, String name){
+	public HashMap<String, String[]> importPlayerConfig(OnlineRewards instance, String name){
 		
 		logger = instance.getLogger();
 		playerConfig = new File(instance.getConfigDir().toFile(), "Players.conf");
 		configLoader = HoconConfigurationLoader.builder().setFile(playerConfig).build();
-		String claimed;
+		String[] claimed = new String[2];
 		try{                	
 			rootNode = configLoader.load();		
-			claimed = Text.of(rootNode.getNode(name,"Last Claimed").getValue()).toString();
-			 players.put(name, claimed);          		
+			claimed[0] = Text.of(rootNode.getNode(name,"Last Claimed Date").getValue()).toString();
+			claimed[1] = Text.of(rootNode.getNode(name,"Last Claimed Time").getValue()).toString();
+			players.put(name, claimed);          		
 		
 		}catch(IOException e){
     	 logger.error("The hamsters couldn't find "+ name, e);

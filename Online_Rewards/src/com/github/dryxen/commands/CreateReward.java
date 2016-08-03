@@ -41,7 +41,7 @@ public class CreateReward {
 		        .executor(new CommandExecutor() {	            
 		            public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		              	                
-		                configLoader = HoconConfigurationLoader.builder().setFile(instance.getdefaultConfig()).build();
+		                configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
 		                int hours = args.<Integer>getOne("Hours").get();
 		                String item = args.<String>getOne("Item").get();
 		                int amount = args.<Integer>getOne("Amount").get();

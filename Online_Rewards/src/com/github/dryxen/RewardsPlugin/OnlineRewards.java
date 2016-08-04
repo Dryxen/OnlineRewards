@@ -2,6 +2,7 @@ package com.github.dryxen.RewardsPlugin;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 @Plugin(id = "onlinerewards", name = "OnlineRewards", version = "0.1")
 public class OnlineRewards {
 	private PlayerHandler playerhandler = new PlayerHandler();
+	private HashMap<String, String> onlinePlayers;
 	
 	@Inject
 	@DefaultConfig(sharedRoot = false)	
@@ -53,14 +55,20 @@ public class OnlineRewards {
 	@Listener
 	public void onLogin(ClientConnectionEvent.Login e){
 		Optional<Player> player = e.getCause().last(Player.class).get().getPlayer();
+		String uuid = player.get().getUniqueId().toString();
 		logger.info(player.get().getUniqueId().toString());
-		playerhandler.checkPlayer(this, player.get().getUniqueId().toString());
+		playerhandler.checkPlayer(this, uuid);
+		onlinePlayers.putAll(playerhandler.importPlayerConfig(this, uuid));
 		
 	}
 	
 	@Listener
-	public ClientConnectionEvent onLogout(ClientConnectionEvent.Disconnect e){
-		return e;
+	public void onLogout(ClientConnectionEvent.Disconnect e){
+		Optional<Player> player = e.getCause().last(Player.class).get().getPlayer();
+		String uuid = player.get().getUniqueId().toString();
+		playerhandler.exportPlayerConfig(this, uuid, onlinePlayers.get(uuid));
+		onlinePlayers.remove(uuid);
+		
 	}
 	
 	public Logger getLogger(){
@@ -72,6 +80,9 @@ public class OnlineRewards {
 	}
 	public Path getdefaultConfig(){
 		return defaultConfig;
+	}
+	public HashMap<String, String> getOnlinePlayers(){
+		return onlinePlayers;
 	}
 
 }

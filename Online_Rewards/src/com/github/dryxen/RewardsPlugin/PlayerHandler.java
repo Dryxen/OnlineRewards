@@ -55,7 +55,7 @@ public class PlayerHandler {
 		configLoader = HoconConfigurationLoader.builder().setFile(playerConfig).build();		
 		try{                	
 			rootNode = configLoader.load();		
-			claimed = Text.of(rootNode.getNode(uuid,"Last Claimed Date").getValue()).toString();			
+			claimed = rootNode.getNode(uuid,"Last Claimed Date").getValue().toString();			
 			players.put(uuid, claimed);          		
 		
 		}catch(IOException e){
@@ -81,6 +81,7 @@ public class PlayerHandler {
 				logger.info("this is the if statement");				
 				rootNode.getNode(uuid,"Last Claimed Date").setValue(dateTime);				;
 				configLoader.save(rootNode);
+				//todo add a default first join reward
 			}
 			
 		}catch(IOException e){

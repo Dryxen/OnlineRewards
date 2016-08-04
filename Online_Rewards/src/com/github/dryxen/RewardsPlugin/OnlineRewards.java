@@ -1,11 +1,11 @@
 package com.github.dryxen.RewardsPlugin;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Optional;
 
 import org.slf4j.Logger;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.entity.living.player.Player;
@@ -14,8 +14,6 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.text.Text;
-
 import com.google.inject.Inject;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -24,7 +22,11 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 @Plugin(id = "onlinerewards", name = "OnlineRewards", version = "0.1")
 public class OnlineRewards {
 	private PlayerHandler playerhandler = new PlayerHandler();
-	private HashMap<String, String> onlinePlayers;
+	private HashMap<String, String> onlinePlayers = new HashMap<String, String>();
+	private RegisterCommands register;
+	
+	@Inject
+	private Game game; 
 	
 	@Inject
 	@DefaultConfig(sharedRoot = false)	
@@ -40,6 +42,7 @@ public class OnlineRewards {
 	
 	@Inject
 	private Logger logger;
+	@SuppressWarnings("unused")
 	private Player player;
 	
 	@Listener
@@ -49,17 +52,15 @@ public class OnlineRewards {
 	
 	@Listener
 	public void onServerStart(GameStartedServerEvent event){
-		
+		register = new RegisterCommands(this, game);
 	}
 	
 	@Listener
 	public void onLogin(ClientConnectionEvent.Login e){
 		Optional<Player> player = e.getCause().last(Player.class).get().getPlayer();
-		String uuid = player.get().getUniqueId().toString();
-		logger.info(player.get().getUniqueId().toString());
+		String uuid = player.get().getUniqueId().toString();		
 		playerhandler.checkPlayer(this, uuid);
-		onlinePlayers.putAll(playerhandler.importPlayerConfig(this, uuid));
-		
+		playerhandler.importPlayerConfig(this, uuid);		
 	}
 	
 	@Listener
@@ -67,7 +68,7 @@ public class OnlineRewards {
 		Optional<Player> player = e.getCause().last(Player.class).get().getPlayer();
 		String uuid = player.get().getUniqueId().toString();
 		playerhandler.exportPlayerConfig(this, uuid, onlinePlayers.get(uuid));
-		onlinePlayers.remove(uuid);
+		onlinePlayers.remove(uuid);		
 		
 	}
 	

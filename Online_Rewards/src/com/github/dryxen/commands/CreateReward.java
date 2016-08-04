@@ -1,6 +1,5 @@
 package com.github.dryxen.commands;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -35,20 +34,27 @@ public class CreateReward {
 		        .permission("onlineRewards.command.claim")
 		        .arguments(GenericArguments.seq(
 		        		   GenericArguments.integer(Text.of("Hours")),
+		        		   GenericArguments.integer(Text.of("RewardNumber")),
 		        		   GenericArguments.string(Text.of("Item")),
-		        		   GenericArguments.integer(Text.of("Amount"))		        		
+		        		   GenericArguments.integer(Text.of("Amount")),
+		        		   GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.integer(Text.of("MetaID"))))
 		        		))
 		        .executor(new CommandExecutor() {	            
 		            public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		              	                
 		                configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
 		                int hours = args.<Integer>getOne("Hours").get();
+		                int rewardNumber = args.<Integer>getOne("RewardNumber").get();		               
 		                String item = args.<String>getOne("Item").get();
 		                int amount = args.<Integer>getOne("Amount").get();
 		                try{                	
 		            		rootNode = configLoader.load();	            	    
-		            		rootNode.getNode("Hours:"+hours,"Item").setValue(item);
-		            		rootNode.getNode("Hours:"+hours,"Amount").setValue("Amount:"+amount);
+		            		rootNode.getNode("Hours:"+hours,"Reward Number:"+rewardNumber,"Item").setValue(item);
+		            		rootNode.getNode("Hours:"+hours,"Reward Number:"+rewardNumber,"Amount").setValue(""+amount);
+		            		if(args.hasAny("MetaID")){
+		            			int metaID = args.<Integer>getOne("MetaID").get();
+		            			rootNode.getNode("Hours:"+hours,"Reward Number:"+rewardNumber,"MetaID").setValue(""+metaID);
+		            		}
 		            		configLoader.save(rootNode);           		
 		            		
 		                }catch(IOException e){

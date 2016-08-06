@@ -14,6 +14,7 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
+
 import com.google.inject.Inject;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -22,7 +23,10 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 @Plugin(id = "onlinerewards", name = "OnlineRewards", version = "0.1")
 public class OnlineRewards {
 	private PlayerHandler playerhandler = new PlayerHandler();
+	private SetDefaultConfig setDefaultConfig = new SetDefaultConfig();
 	private HashMap<String, String> onlinePlayers = new HashMap<String, String>();
+	private HashMap<Integer, String[][]> rewards = new HashMap<Integer, String[][]>();
+	@SuppressWarnings("unused")
 	private RegisterCommands register;
 	
 	@Inject
@@ -52,6 +56,7 @@ public class OnlineRewards {
 	
 	@Listener
 	public void onServerStart(GameStartedServerEvent event){
+		setDefaultConfig.configCheck(this);
 		register = new RegisterCommands(this, game);
 	}
 	
@@ -82,8 +87,20 @@ public class OnlineRewards {
 	public Path getdefaultConfig(){
 		return defaultConfig;
 	}
+	public String getUUID(String name){
+		Optional<Player> player = game.getServer().getPlayer(name);
+		String uuid = player.get().getUniqueId().toString();
+		return uuid;
+	}
 	public HashMap<String, String> getOnlinePlayers(){
 		return onlinePlayers;
+	}
+	public HashMap<Integer, String[][]> getRewards(){
+		return rewards;
+	}
+	public void setRewards(HashMap<Integer, String[][]> rewards2){
+		rewards.putAll(rewards2);
+		
 	}
 
 }

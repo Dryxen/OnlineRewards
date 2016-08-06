@@ -13,7 +13,6 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 
 import com.github.dryxen.RewardsPlugin.OnlineRewards;
-
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -24,37 +23,40 @@ public class CreateReward {
 	private Logger logger;
 	private CommandSpec commandspec;
 	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
-	private ConfigurationNode rootNode;	
-	
-	
+	private ConfigurationNode rootNode;
 	public CreateReward(OnlineRewards instance){
 		logger = instance.getLogger();
 		this.commandspec = CommandSpec.builder()
-		        .description(Text.of("Used to claim your Online Rewards."))
+		        .description(Text.of("Create a time based Reward"))
 		        .permission("onlineRewards.command.claim")
-		        .arguments(GenericArguments.seq(
-		        		   GenericArguments.integer(Text.of("Hours")),
+		        .arguments(GenericArguments.seq(		        		   
 		        		   GenericArguments.integer(Text.of("RewardNumber")),
 		        		   GenericArguments.string(Text.of("Item")),
 		        		   GenericArguments.integer(Text.of("Amount")),
-		        		   GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.integer(Text.of("MetaID"))))
+		        		   GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.integer(Text.of("MetaID")))),
+		        		   GenericArguments.bool(Text.of("RandomReward"))
 		        		))
 		        .executor(new CommandExecutor() {	            
 		            public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		              	                
-		                configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
-		                int hours = args.<Integer>getOne("Hours").get();
+		            	
+		            	configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();	                
 		                int rewardNumber = args.<Integer>getOne("RewardNumber").get();		               
 		                String item = args.<String>getOne("Item").get();
 		                int amount = args.<Integer>getOne("Amount").get();
+		                int defaultMeta = 0;
+		                boolean canRandom = args.<Boolean>getOne("RandomReward").get();
+		                
 		                try{                	
 		            		rootNode = configLoader.load();	            	    
-		            		rootNode.getNode("Hours:"+hours,"Reward Number:"+rewardNumber,"Item").setValue(item);
-		            		rootNode.getNode("Hours:"+hours,"Reward Number:"+rewardNumber,"Amount").setValue(""+amount);
+		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"Item").setValue(item);
+		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"Amount").setValue(amount);
 		            		if(args.hasAny("MetaID")){
 		            			int metaID = args.<Integer>getOne("MetaID").get();
-		            			rootNode.getNode("Hours:"+hours,"Reward Number:"+rewardNumber,"MetaID").setValue(""+metaID);
+		            			rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"MetaID").setValue(metaID);
+		            		}else{
+		            			rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"MetaID").setValue(defaultMeta);
 		            		}
+		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"RandomReward").setValue(canRandom);
 		            		configLoader.save(rootNode);           		
 		            		
 		                }catch(IOException e){

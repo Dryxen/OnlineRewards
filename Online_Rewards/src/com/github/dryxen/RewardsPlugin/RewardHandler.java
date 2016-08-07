@@ -22,8 +22,9 @@ public class RewardHandler {
 	private Logger logger;
 	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
 	private ConfigurationNode rootNode;	
-	private HashMap<Integer, String[][]> rewards = new HashMap<Integer, String[][]>();
-	private String[][] items;
+	private HashMap<Integer, Object> rewards = new HashMap<Integer, Object>();
+	private RewardObject reward = new RewardObject();
+	
 	
 	
 	public boolean checkRewards(OnlineRewards instance, String name){
@@ -95,23 +96,24 @@ public class RewardHandler {
 		 
 		 configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
 		 try{                	
-     		rootNode = configLoader.load();
-     		for(int i = 0; i<24; i++){
-     			if(!rootNode.getNode("Hours:"+i).isVirtual()){     				
-     				int size = rootNode.getNode("Hours:"+i).getChildrenMap().size();     				
-     				for(int j = 0; j<size; j++){     					
-     					items = new String[size][3];
-     					items[j][0]= rootNode.getNode("Hours:"+i,"Reward Number:"+(j+1),"Item").getValue().toString();
-     					items[j][1]= rootNode.getNode("Hours:"+i,"Reward Number:"+(j+1),"Amount").getValue().toString();
-     					items[j][2]= rootNode.getNode("Hours:"+i,"Reward Number:"+(j+1),"MetaID").getValue().toString();    					
+     		rootNode = configLoader.load();     		
+     			if(!rootNode.getNode("SetRewards:").isVirtual()){     				
+     				int size = rootNode.getNode("SetRewards:").getChildrenMap().size();     				
+     				for(int i = 0; i<size; i++){   					
+     					reward.setID(i+1);
+     					reward.setName(rootNode.getNode("SetRewards:","Reward:"+(i+1),"Item").getString());
+     					reward.setAmount(rootNode.getNode("SetRewards:","Reward:"+(i+1),"Amount").getInt());
+     					reward.setMeta(rootNode.getNode("SetRewards:","Reward:"+(i+1),"MetaID").getInt());
+     					reward.setRandom(rootNode.getNode("SetRewards:","Reward:"+(i+1),"RandomReward").getBoolean());
+     					rewards.put(i+1, reward);
      				}
-     				rewards.put(i, items);
+     				
      				instance.setRewards(rewards);
-     				logger.info(""+items.length);
-     				//todo need to rework with for config changes
+     				//logger.info("");
+     				//todo need to rework for config changes
      				
      			}
-     		}
+     		
      		
      		
          }catch(IOException e){

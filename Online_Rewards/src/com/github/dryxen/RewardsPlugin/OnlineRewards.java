@@ -25,7 +25,7 @@ public class OnlineRewards {
 	private PlayerHandler playerhandler = new PlayerHandler();
 	private SetDefaultConfig setDefaultConfig = new SetDefaultConfig();
 	private HashMap<String, String> onlinePlayers = new HashMap<String, String>();
-	private HashMap<Integer, String[][]> rewards = new HashMap<Integer, String[][]>();
+	private HashMap<Integer, Object> rewards = new HashMap<Integer, Object>();
 	@SuppressWarnings("unused")
 	private RegisterCommands register;
 	
@@ -95,11 +95,11 @@ public class OnlineRewards {
 	public HashMap<String, String> getOnlinePlayers(){
 		return onlinePlayers;
 	}
-	public HashMap<Integer, String[][]> getRewards(){
+	public HashMap<Integer, Object> getRewards(){
 		return rewards;
 	}
-	public void setRewards(HashMap<Integer, String[][]> rewards2){
-		rewards.putAll(rewards2);
+	public void setRewards(HashMap<Integer, Object> rewards){
+		rewards.putAll(rewards);
 		
 	}
 

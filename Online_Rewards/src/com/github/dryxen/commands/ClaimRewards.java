@@ -3,15 +3,12 @@ package com.github.dryxen.commands;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.stream.IntStream;
-
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
@@ -38,7 +35,7 @@ public class ClaimRewards {
 	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
 	private ConfigurationNode rootNode;	
 	private RewardHandler rewardHandler = new RewardHandler();
-	private HashMap<Integer, RewardObject> rewards = new HashMap<Integer, RewardObject>();
+	private HashMap<Integer, RewardObject> rewards;
 	private int randomTimes = 0;
 	private int randomNumber = 0;
 	
@@ -55,21 +52,29 @@ public class ClaimRewards {
 	            		if(rewardHandler.checkRewards(instance, name)){
 	            			try{
 	            				rootNode = configLoader.load();
-	            				int randomTimes = rootNode.getNode("Settings:", "RandomAmount").getInt();
+	            				randomTimes = rootNode.getNode("PluginSettings:", "RandomAmount").getInt();
 	            			}catch(IOException e){
 	            				logger.error("config for randomAmount couldn't be found.");
 	            			}	            			
 	            			rewards = instance.getRewards();
 	            			Inventory inventory = ((Player) src).getInventory();
+	            			
 	            			for(int i=0; i<randomTimes; i++){
-	            				randomNumber = random.nextInt(rewards.size())+1;
-	            				reward = rewards.get(randomNumber);
+	            				randomNumber = random.nextInt(rewards.size());
+	            				logger.info(""+(randomNumber+1));
+	            				reward = rewards.get((randomNumber+1));
 	            				if(reward.isRandom()){	            				
-	            				  ItemType type = game.getRegistry().getType(ItemType.class, reward.getName()).get();
-	            				  ItemStack item = ItemStack.builder().itemType(type).build();	            				
+	            				  ItemType type = game.getRegistry().getType(ItemType.class, reward.getName()).get();	            				 
+	            				  ItemStack item = ItemStack.builder().itemType(type).quantity(reward.getAmount()).build();
+	            				  
+	            				  
+	            				  if(reward.getMeta() != 0){
+	            					              				   
+	            				   logger.info("it had a meta");
+	            				  }	            				  
 	            				  inventory.offer(item);
 	            				}else{
-	            					i = i-1;
+	            					logger.info(reward.getName());;
 	            				}
 	            			}
 	            			

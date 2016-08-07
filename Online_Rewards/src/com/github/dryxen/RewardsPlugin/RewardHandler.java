@@ -23,7 +23,7 @@ public class RewardHandler {
 	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
 	private ConfigurationNode rootNode;	
 	private HashMap<Integer, RewardObject> rewards = new HashMap<Integer, RewardObject>();
-	private RewardObject reward = new RewardObject();
+	private RewardObject reward;
 	
 	
 	
@@ -80,7 +80,7 @@ public class RewardHandler {
 			
 			
 			
-			if(playerClaimed.compareTo(startReset) == 1 && playerClaimed.compareTo(isCooled) == 1){
+			if(startReset.compareTo(playerClaimed) == 1 && isCooled.compareTo(playerClaimed) == 1){
 				return true;
 			}
 			logger.info(Text.of("").toString());
@@ -99,12 +99,14 @@ public class RewardHandler {
      		rootNode = configLoader.load();     		
      			if(!rootNode.getNode("SetRewards:").isVirtual()){     				
      				int size = rootNode.getNode("SetRewards:").getChildrenMap().size();     				
-     				for(int i = 0; i<size; i++){   					
-     					reward.setID(i+1);
-     					reward.setName(rootNode.getNode("SetRewards:","Reward:"+(i+1),"Item").getString());
-     					reward.setAmount(rootNode.getNode("SetRewards:","Reward:"+(i+1),"Amount").getInt());
-     					reward.setMeta(rootNode.getNode("SetRewards:","Reward:"+(i+1),"MetaID").getInt());
-     					reward.setRandom(rootNode.getNode("SetRewards:","Reward:"+(i+1),"RandomReward").getBoolean());
+     				for(int i = 0; i<size; i++){     					
+     					int id = (i+1);
+     					logger.info(""+(i+1));
+     					String name = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Item").getValue().toString();
+     					int amount = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Amount").getInt();
+     					int meta = rootNode.getNode("SetRewards:","Reward:"+(i+1),"MetaID").getInt();
+     					boolean isRandom = rootNode.getNode("SetRewards:","Reward:"+(i+1),"RandomReward").getBoolean();
+     					reward = new RewardObject(id, name, amount, meta, isRandom);
      					rewards.put(i+1, reward);
      				}
      				
@@ -118,11 +120,7 @@ public class RewardHandler {
 	
 	public void addReward(OnlineRewards instance, int id, String name, int amount, int meta, boolean random){
 		
-		reward.setID(id);
-		reward.setName(name);
-		reward.setAmount(amount);
-		reward.setMeta(meta);
-		reward.setRandom(random);
+		reward = new RewardObject(id, name, amount, meta, random);
 		rewards.put(id, reward);
 		instance.setRewards(rewards);		
 		

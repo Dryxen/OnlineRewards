@@ -11,6 +11,8 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -66,15 +68,18 @@ public class ClaimRewards {
 	            				if(reward.isRandom()){	            				
 	            				  ItemType type = game.getRegistry().getType(ItemType.class, reward.getName()).get();	            				 
 	            				  ItemStack item = ItemStack.builder().itemType(type).quantity(reward.getAmount()).build();
-	            				  
+	            				  DataQuery.of();
+	            				  DataContainer container = item.toContainer();	            				  
 	            				  
 	            				  if(reward.getMeta() != 0){
+	            					 container.set(DataQuery.of("UnsafeDamage"), reward.getMeta()); 
 	            					              				   
 	            				   logger.info("it had a meta");
-	            				  }	            				  
-	            				  inventory.offer(item);
+	            				  }	
+	            				  ItemStack items = ItemStack.builder().fromContainer(container).build();
+	            				  inventory.offer(items);
 	            				}else{
-	            					logger.info(reward.getName());;
+	            					i = i-1;
 	            				}
 	            			}
 	            			

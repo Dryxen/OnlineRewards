@@ -23,9 +23,10 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 @Plugin(id = "onlinerewards", name = "OnlineRewards", version = "0.1")
 public class OnlineRewards {
 	private PlayerHandler playerhandler = new PlayerHandler();
+	private RewardHandler handler = new RewardHandler();
 	private SetDefaultConfig setDefaultConfig = new SetDefaultConfig();
 	private HashMap<String, String> onlinePlayers = new HashMap<String, String>();
-	private HashMap<Integer, Object> rewards = new HashMap<Integer, Object>();
+	private HashMap<Integer, RewardObject> rewards = new HashMap<Integer, RewardObject>();
 	@SuppressWarnings("unused")
 	private RegisterCommands register;
 	
@@ -57,6 +58,7 @@ public class OnlineRewards {
 	@Listener
 	public void onServerStart(GameStartedServerEvent event){
 		setDefaultConfig.configCheck(this);
+		handler.loadRewards(this);
 		register = new RegisterCommands(this, game);
 	}
 	
@@ -95,10 +97,10 @@ public class OnlineRewards {
 	public HashMap<String, String> getOnlinePlayers(){
 		return onlinePlayers;
 	}
-	public HashMap<Integer, Object> getRewards(){
+	public HashMap<Integer, RewardObject> getRewards(){
 		return rewards;
 	}
-	public void setRewards(HashMap<Integer, Object> rewards){
+	public void setRewards(HashMap<Integer, RewardObject> rewards){
 		rewards.putAll(rewards);
 		
 	}

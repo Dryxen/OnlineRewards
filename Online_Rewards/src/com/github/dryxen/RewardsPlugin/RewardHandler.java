@@ -22,7 +22,7 @@ public class RewardHandler {
 	private Logger logger;
 	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
 	private ConfigurationNode rootNode;	
-	private HashMap<Integer, Object> rewards = new HashMap<Integer, Object>();
+	private HashMap<Integer, RewardObject> rewards = new HashMap<Integer, RewardObject>();
 	private RewardObject reward = new RewardObject();
 	
 	
@@ -108,20 +108,24 @@ public class RewardHandler {
      					rewards.put(i+1, reward);
      				}
      				
-     				instance.setRewards(rewards);
-     				//logger.info("");
-     				//todo need to rework for config changes
-     				
-     			}
-     		
-     		
+     				instance.setRewards(rewards);	     				
+     			}     		
      		
          }catch(IOException e){
         
          }
 	}
-	public void exportRewards(OnlineRewards instance){
+	
+	public void addReward(OnlineRewards instance, int id, String name, int amount, int meta, boolean random){
 		
-	}
+		reward.setID(id);
+		reward.setName(name);
+		reward.setAmount(amount);
+		reward.setMeta(meta);
+		reward.setRandom(random);
+		rewards.put(id, reward);
+		instance.setRewards(rewards);		
+		
+	}	
 
 }

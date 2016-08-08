@@ -105,5 +105,9 @@ public class OnlineRewards {
 		rewards.putAll(reward);
 		
 	}
+	public void setPlayerTime(String uuid, String time ){
+		this.onlinePlayers.remove(uuid);
+		this.onlinePlayers.put(uuid, time);
+	}
 
 }

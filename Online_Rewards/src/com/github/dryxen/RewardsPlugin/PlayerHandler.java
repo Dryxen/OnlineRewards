@@ -6,6 +6,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -18,6 +20,7 @@ public class PlayerHandler {
 	private File playerConfig;
 	Logger logger;
 	String claimed;	
+	Calendar time = Calendar.getInstance();
 	private DateFormat dFormatter = new SimpleDateFormat("dd-MM-yyyy'@'HH:mm:ss");
 	
 	 
@@ -59,11 +62,9 @@ public class PlayerHandler {
 		playerConfig = new File(instance.getConfigDir().toFile(), "Players.conf");
 		configLoader = HoconConfigurationLoader.builder().setFile(playerConfig).build();		 
 		
-		try{
-			logger.info("I made it to the check player try catch");
+		try{			
 			Date date = Calendar.getInstance().getTime();
-			String dateTime = dFormatter.format(date);
-			
+			String dateTime = dFormatter.format(date);			
 			rootNode = configLoader.load();
 			rootNode = rootNode.getNode();			
 			if(rootNode.getNode(uuid).isVirtual()){
@@ -76,6 +77,24 @@ public class PlayerHandler {
 		}catch(IOException e){
 			
 		}
+		
+	}
+	public void setPlayerClaimed(OnlineRewards instance, String uuid, Date date){
+		
+		playerConfig = new File(instance.getConfigDir().toFile(), "Players.conf");
+		configLoader = HoconConfigurationLoader.builder().setFile(playerConfig).build();		 
+		String dateTime = dFormatter.format(date);
+		try{ 
+			 rootNode = configLoader.load();
+			 if(!rootNode.getNode(uuid).isVirtual()){
+				 rootNode.getNode(uuid,"Last Claimed Date").setValue(dateTime);
+				 configLoader.save(rootNode);
+			 }
+			 
+		 }catch(IOException e){
+			 
+		 }		 	
+		 instance.getOnlinePlayers().replace(uuid, dateTime);
 		
 	}
 

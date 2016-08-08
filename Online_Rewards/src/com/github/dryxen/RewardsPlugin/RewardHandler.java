@@ -36,7 +36,7 @@ public class RewardHandler {
 			Calendar resetTime = cal;
 			Calendar claimedToCal = cal;
 			int resetMonth = rootNode.getNode("PluginSettings:","Reset:","Month").getInt();
-			 if(resetMonth != 0) resetTime.set(Calendar.MONTH, resetMonth);
+			 if(resetMonth != 0) resetTime.set(Calendar.MONTH, (resetMonth+1));
 			String resetDay = rootNode.getNode("PluginSettings:","Reset:","Day").getString();
 			 switch(resetDay.toUpperCase()){
 			 case "SUNDAY":
@@ -64,28 +64,31 @@ public class RewardHandler {
 				 break;
 			 }			
 			int resetHour = rootNode.getNode("PluginSettings:","Reset:","Hour").getInt();
-			 if(resetHour != 0) resetTime.set(Calendar.HOUR, resetHour);
+			 if(resetHour != 0){ 
+				 resetTime.set(Calendar.HOUR_OF_DAY, resetHour);				 
+			 }else{
+				 resetTime.set(Calendar.HOUR_OF_DAY, 0);
+			 }
 			int resetMinute = rootNode.getNode("PluginSettings:","Reset:","Minute").getInt();
-			 if(resetMinute != 0) resetTime.set(Calendar.MINUTE, resetMinute);
+			 if(resetMinute != 0){
+				 resetTime.set(Calendar.MINUTE, resetMinute);
+			 }else{
+				 resetTime.set(Calendar.MINUTE, 0);
+			 }
 			int cooldown = rootNode.getNode("PluginSettings:", "PickupCooldown:", "Hours").getInt();
-			Date startReset = resetTime.getTime();		
+			Date startReset = resetTime.getTime();
+			logger.info(instance.getOnlinePlayers().get(instance.getUUID(name)));
 			Date playerClaimed = dFormatter.parse(instance.getOnlinePlayers().get(instance.getUUID(name)));
 			claimedToCal.setTime(playerClaimed);
-			claimedToCal.add(Calendar.HOUR, cooldown);
-			Date isCooled = claimedToCal.getTime();
+			claimedToCal.add(Calendar.HOUR_OF_DAY, cooldown);
+			Date isCooled = claimedToCal.getTime();		
 			
-			
-			
-			
-			
-			
-			
-			if(startReset.compareTo(playerClaimed) == 1 && isCooled.compareTo(playerClaimed) == 1){
+			if(playerClaimed.compareTo(startReset) == -1 && isCooled.compareTo(startReset) == -1){
 				return true;
 			}
-			logger.info(Text.of("").toString());
+			
 		} catch (ParseException | IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		

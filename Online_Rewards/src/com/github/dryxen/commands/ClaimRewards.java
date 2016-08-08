@@ -1,6 +1,8 @@
 package com.github.dryxen.commands;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import org.slf4j.Logger;
@@ -17,9 +19,11 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.text.Text;
 
 import com.github.dryxen.RewardsPlugin.OnlineRewards;
+import com.github.dryxen.RewardsPlugin.PlayerHandler;
 import com.github.dryxen.RewardsPlugin.RewardHandler;
 import com.github.dryxen.RewardsPlugin.RewardObject;
 
@@ -30,6 +34,7 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 public class ClaimRewards {
 	
+	private PlayerHandler handler = new PlayerHandler();	
 	private Logger logger;
 	private CommandSpec commandspec;
 	private RewardObject reward; 
@@ -50,7 +55,8 @@ public class ClaimRewards {
 	            public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 	            	if(src instanceof Player){
 	            		configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
-	            		String name = src.getName();
+	            		String name = ((Player)src).getName();
+	            		logger.info(""+rewardHandler.checkRewards(instance, name));
 	            		if(rewardHandler.checkRewards(instance, name)){
 	            			try{
 	            				rootNode = configLoader.load();
@@ -60,11 +66,10 @@ public class ClaimRewards {
 	            			}	            			
 	            			rewards = instance.getRewards();
 	            			Inventory inventory = ((Player) src).getInventory();
-	            			
-	            			for(int i=0; i<randomTimes; i++){
-	            				randomNumber = random.nextInt(rewards.size());
-	            				logger.info(""+(randomNumber+1));
-	            				reward = rewards.get((randomNumber+1));
+	            			randomNumber = (random.nextInt(rewards.size())+1);            			
+	            			if(inventory.size() < (randomNumber+35)){
+	            			  for(int i=0; i<randomTimes; i++){              				
+	            				reward = rewards.get(randomNumber);
 	            				if(reward.isRandom()){	            				
 	            				  ItemType type = game.getRegistry().getType(ItemType.class, reward.getName()).get();	            				 
 	            				  ItemStack item = ItemStack.builder().itemType(type).quantity(reward.getAmount()).build();
@@ -72,23 +77,23 @@ public class ClaimRewards {
 	            				  DataContainer container = item.toContainer();	            				  
 	            				  
 	            				  if(reward.getMeta() != 0){
-	            					 container.set(DataQuery.of("UnsafeDamage"), reward.getMeta()); 
-	            					              				   
-	            				   logger.info("it had a meta");
+	            					 container.set(DataQuery.of("UnsafeDamage"), reward.getMeta());
 	            				  }	
 	            				  ItemStack items = ItemStack.builder().fromContainer(container).build();
 	            				  inventory.offer(items);
 	            				}else{
 	            					i = i-1;
 	            				}
-	            			}
-	            			
-	            			
+	            				Date date = Calendar.getInstance().getTime();
+	            				handler.setPlayerClaimed(instance, ((Player) src).getUniqueId().toString(),
+	            						date);
+	            			}            			
+	            		   }else{
+	            			  src.sendMessage(Text.of("you need atleast "+randomNumber+" empty Slots"));
+	            		   }
 	            		}else{
 	            			src.sendMessage(Text.of("You can't claim for"));
-	            		}
-	            		
-	            		//todo finish claim logic
+	            		}	            		
 	            	}else{
 	            		logger.info("This Command can only be used by a Player!");
 	            	}

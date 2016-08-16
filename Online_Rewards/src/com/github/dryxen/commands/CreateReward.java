@@ -12,8 +12,8 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 
+import com.github.dryxen.Handlers.RewardHandler;
 import com.github.dryxen.RewardsPlugin.OnlineRewards;
-import com.github.dryxen.RewardsPlugin.RewardHandler;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -37,6 +37,7 @@ public class CreateReward {
 		        		   GenericArguments.string(Text.of("Item")),
 		        		   GenericArguments.integer(Text.of("Amount")),
 		        		   GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.integer(Text.of("MetaID")))),
+		        		   GenericArguments.integer(Text.of("Streak")),
 		        		   GenericArguments.bool(Text.of("RandomReward"))
 		        		))
 		        .executor(new CommandExecutor() {	            
@@ -47,6 +48,7 @@ public class CreateReward {
 		                String item = args.<String>getOne("Item").get();
 		                int amount = args.<Integer>getOne("Amount").get();
 		                int metaID = 0;
+		                int streak = args.<Integer>getOne("Streak").get();
 		                boolean canRandom = args.<Boolean>getOne("RandomReward").get();
 		                
 		                try{                	
@@ -59,9 +61,10 @@ public class CreateReward {
 		            		}else{
 		            			rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"MetaID").setValue(metaID);
 		            		}
+		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"Streak").setValue(streak);
 		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"RandomReward").setValue(canRandom);
 		            		configLoader.save(rootNode);
-		            		handler.addReward(instance, rewardNumber, item, amount, metaID, canRandom);
+		            		handler.addReward(instance, rewardNumber, item, amount, metaID, streak, canRandom);
 		            		
 		                }catch(IOException e){
 		               

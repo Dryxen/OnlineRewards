@@ -22,10 +22,10 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.text.Text;
 
+import com.github.dryxen.Handlers.PlayerHandler;
+import com.github.dryxen.Handlers.RewardHandler;
+import com.github.dryxen.Objects.RewardObject;
 import com.github.dryxen.RewardsPlugin.OnlineRewards;
-import com.github.dryxen.RewardsPlugin.PlayerHandler;
-import com.github.dryxen.RewardsPlugin.RewardHandler;
-import com.github.dryxen.RewardsPlugin.RewardObject;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -55,9 +55,8 @@ public class ClaimRewards {
 	            public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 	            	if(src instanceof Player){
 	            		configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
-	            		String name = ((Player)src).getName();
-	            		logger.info(""+rewardHandler.checkRewards(instance, name));
-	            		if(rewardHandler.checkRewards(instance, name)){
+	            		String uuid = ((Player)src).getUniqueId().toString();	            		
+	            		if(rewardHandler.checkRewards(instance, uuid)){
 	            			try{
 	            				rootNode = configLoader.load();
 	            				randomTimes = rootNode.getNode("PluginSettings:", "RandomAmount").getInt();
@@ -93,6 +92,7 @@ public class ClaimRewards {
 	            		   }
 	            		}else{
 	            			src.sendMessage(Text.of("You can't claim for"));
+	            			//Todo add math to show remaining time on claims
 	            		}	            		
 	            	}else{
 	            		logger.info("This Command can only be used by a Player!");

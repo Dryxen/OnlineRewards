@@ -16,6 +16,10 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 
+import com.github.dryxen.Handlers.PlayerHandler;
+import com.github.dryxen.Handlers.RewardHandler;
+import com.github.dryxen.Objects.PlayerObject;
+import com.github.dryxen.Objects.RewardObject;
 import com.google.inject.Inject;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -26,7 +30,7 @@ public class OnlineRewards {
 	private PlayerHandler playerhandler = new PlayerHandler();
 	private RewardHandler handler = new RewardHandler();
 	private SetDefaultConfig setDefaultConfig = new SetDefaultConfig();
-	private HashMap<String, String> onlinePlayers = new HashMap<String, String>();
+	private HashMap<String, PlayerObject> onlinePlayers = new HashMap<String, PlayerObject>();
 	private HashMap<Integer, RewardObject> rewards = new HashMap<Integer, RewardObject>();
 	@SuppressWarnings("unused")
 	private RegisterCommands register;
@@ -75,7 +79,7 @@ public class OnlineRewards {
 	public void onLogout(ClientConnectionEvent.Disconnect e){
 		Optional<Player> player = e.getCause().last(Player.class).get().getPlayer();
 		String uuid = player.get().getUniqueId().toString();
-		playerhandler.exportPlayerConfig(this, uuid, onlinePlayers.get(uuid));
+		playerhandler.exportPlayerConfig(this, uuid);
 		onlinePlayers.remove(uuid);		
 		
 	}
@@ -95,7 +99,7 @@ public class OnlineRewards {
 		String uuid = player.get().getUniqueId().toString();
 		return uuid;
 	}
-	public HashMap<String, String> getOnlinePlayers(){
+	public HashMap<String, PlayerObject> getOnlinePlayers(){
 		return onlinePlayers;
 	}
 	public HashMap<Integer, RewardObject> getRewards(){
@@ -107,7 +111,7 @@ public class OnlineRewards {
 	}
 	public void setPlayerTime(String uuid, String time ){
 		this.onlinePlayers.remove(uuid);
-		this.onlinePlayers.put(uuid, time);
+		this.onlinePlayers.get(uuid).setLastClaimed(time);
 	}
 
 }

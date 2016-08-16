@@ -1,4 +1,4 @@
-package com.github.dryxen.RewardsPlugin;
+package com.github.dryxen.Handlers;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -9,7 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
-import org.spongepowered.api.text.Text;
+import com.github.dryxen.Objects.RewardObject;
+import com.github.dryxen.RewardsPlugin.OnlineRewards;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -24,61 +25,21 @@ public class RewardHandler {
 	private ConfigurationNode rootNode;	
 	private HashMap<Integer, RewardObject> rewards = new HashMap<Integer, RewardObject>();
 	private RewardObject reward;
+	private ResetTime rTime = new ResetTime();
 	
 	
 	
-	public boolean checkRewards(OnlineRewards instance, String name){
+	public boolean checkRewards(OnlineRewards instance, String uuid){
 		logger = instance.getLogger();
 		configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
 		try {
 			Calendar cal = Calendar.getInstance();
-			rootNode = configLoader.load();
-			Calendar resetTime = cal;
-			Calendar claimedToCal = cal;
-			int resetMonth = rootNode.getNode("PluginSettings:","Reset:","Month").getInt();
-			 if(resetMonth != 0) resetTime.set(Calendar.MONTH, (resetMonth+1));
-			String resetDay = rootNode.getNode("PluginSettings:","Reset:","Day").getString();
-			 switch(resetDay.toUpperCase()){
-			 case "SUNDAY":
-				 resetTime.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-				 break;
-			 case "MONDAY":
-				 resetTime.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-			     break;
-			 case "TUESDAY":
-				 resetTime.set(Calendar.DAY_OF_WEEK, Calendar.TUESDAY);
-			     break;
-			 case "WEDNESDAY":
-				 resetTime.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY);
-			     break;
-			 case "THURSDAY":
-				 resetTime.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
-			     break;
-			 case "Friday":
-				 resetTime.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
-			     break;
-			 case "SATURDAY":
-				 resetTime.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-			     break;
-			 default:
-				 break;
-			 }			
-			int resetHour = rootNode.getNode("PluginSettings:","Reset:","Hour").getInt();
-			 if(resetHour != 0){ 
-				 resetTime.set(Calendar.HOUR_OF_DAY, resetHour);				 
-			 }else{
-				 resetTime.set(Calendar.HOUR_OF_DAY, 0);
-			 }
-			int resetMinute = rootNode.getNode("PluginSettings:","Reset:","Minute").getInt();
-			 if(resetMinute != 0){
-				 resetTime.set(Calendar.MINUTE, resetMinute);
-			 }else{
-				 resetTime.set(Calendar.MINUTE, 0);
-			 }
+			rootNode = configLoader.load();			
+			Calendar resetTime = rTime.getResetTime(instance);
+			Calendar claimedToCal = cal;			
 			int cooldown = rootNode.getNode("PluginSettings:", "PickupCooldown:", "Hours").getInt();
-			Date startReset = resetTime.getTime();
-			logger.info(instance.getOnlinePlayers().get(instance.getUUID(name)));
-			Date playerClaimed = dFormatter.parse(instance.getOnlinePlayers().get(instance.getUUID(name)));
+			Date startReset = resetTime.getTime();			
+			Date playerClaimed = dFormatter.parse(instance.getOnlinePlayers().get(uuid).getLastClaimed());
 			claimedToCal.setTime(playerClaimed);
 			claimedToCal.add(Calendar.HOUR_OF_DAY, cooldown);
 			Date isCooled = claimedToCal.getTime();		
@@ -103,13 +64,13 @@ public class RewardHandler {
      			if(!rootNode.getNode("SetRewards:").isVirtual()){     				
      				int size = rootNode.getNode("SetRewards:").getChildrenMap().size();     				
      				for(int i = 0; i<size; i++){     					
-     					int id = (i+1);
-     					logger.info(""+(i+1));
+     					int id = (i+1);     					
      					String name = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Item").getValue().toString();
      					int amount = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Amount").getInt();
      					int meta = rootNode.getNode("SetRewards:","Reward:"+(i+1),"MetaID").getInt();
+     					int streak = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Streak").getInt();
      					boolean isRandom = rootNode.getNode("SetRewards:","Reward:"+(i+1),"RandomReward").getBoolean();
-     					reward = new RewardObject(id, name, amount, meta, isRandom);
+     					reward = new RewardObject(id, name, amount, meta, streak, isRandom);
      					rewards.put(i+1, reward);
      				}
      				
@@ -121,9 +82,9 @@ public class RewardHandler {
          }
 	}
 	
-	public void addReward(OnlineRewards instance, int id, String name, int amount, int meta, boolean random){
+	public void addReward(OnlineRewards instance, int id, String name, int amount, int meta, int streak, boolean random){
 		
-		reward = new RewardObject(id, name, amount, meta, random);
+		reward = new RewardObject(id, name, amount, meta, streak, random);
 		rewards.put(id, reward);
 		instance.setRewards(rewards);		
 		

@@ -91,7 +91,7 @@ public class ClaimRewards {
 	            			  src.sendMessage(Text.of("you need atleast "+randomNumber+" empty Slots"));
 	            		   }
 	            		}else{
-	            			src.sendMessage(Text.of("You can't claim for"));
+	            			src.sendMessage(Text.of("You can't claim for: "+rewardHandler.getRemainingTime(instance, uuid)));
 	            			//Todo add math to show remaining time on claims
 	            		}	            		
 	            	}else{

@@ -18,7 +18,8 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 public class RewardHandler {
 	
-	private DateFormat dFormatter = new SimpleDateFormat("dd-MM-yyyy'@'HH:mm:ss");	
+	private DateFormat dFormatter = new SimpleDateFormat("dd-MM-yyyy'@'HH:mm:ss");
+	private DateFormat tFormatter = new SimpleDateFormat("HH' Hours': mm' Mins': ss' Secs'");
 	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
 	private ConfigurationNode rootNode;	
 	private HashMap<Integer, RewardObject> rewards = new HashMap<Integer, RewardObject>();
@@ -52,7 +53,42 @@ public class RewardHandler {
 		}
 		
 		return false;
-	}	
+	}
+	public String getRemainingTime(OnlineRewards instance, String uuid){
+		configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
+		Calendar cal = Calendar.getInstance();
+		Calendar resetTime = rTime.getResetTime(instance);
+		Calendar claimedToCal = cal;
+		Calendar cooldown = cal;
+		Calendar remain = cal;				
+		String remainingTime = "Something went Wrong";
+		try {
+			rootNode = configLoader.load();
+			int cool = rootNode.getNode("PluginSettings:", "PickupCooldown:", "Hours").getInt();
+			Date playerClaimed = dFormatter.parse(instance.getOnlinePlayers().get(uuid).getLastClaimed());
+			claimedToCal.setTime(playerClaimed);
+			cooldown.setTime(playerClaimed);
+			cooldown.add(Calendar.HOUR_OF_DAY, cool);
+			Date reset = resetTime.getTime();
+			Date coolTime = cooldown.getTime();
+			if(playerClaimed.compareTo(reset) == -1 && coolTime.compareTo(reset) != -1){
+				long millis = (resetTime.getTimeInMillis() - cooldown.getTimeInMillis()); 
+				remain.setTimeInMillis(millis);
+				Date remaining = remain.getTime();
+				remainingTime = tFormatter.format(remaining);
+			}else{
+				long millis = (resetTime.getTimeInMillis() - claimedToCal.getTimeInMillis()); 
+				remain.setTimeInMillis(millis);
+				Date remaining = remain.getTime();
+				remainingTime = tFormatter.format(remaining);
+			}
+			
+		} catch (ParseException | IOException e) {			
+			e.printStackTrace();
+		}	
+		
+		return remainingTime;
+	}
 	public void loadRewards(OnlineRewards instance){
 		 instance.getLogger();
 		 

@@ -29,7 +29,7 @@ public class CreateReward {
 		instance.getLogger();
 		this.commandspec = CommandSpec.builder()
 		        .description(Text.of("Create a time based Reward"))
-		        .permission("onlineRewards.command.claim")
+		        .permission("onlineRewards.command.create")
 		        .arguments(GenericArguments.seq(		        		   
 		        		   GenericArguments.integer(Text.of("RewardNumber")),
 		        		   GenericArguments.string(Text.of("Item")),

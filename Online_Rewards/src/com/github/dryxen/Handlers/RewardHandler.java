@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
 import com.github.dryxen.Objects.RewardObject;
 import com.github.dryxen.RewardsPlugin.OnlineRewards;
 
@@ -20,7 +19,6 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 public class RewardHandler {
 	
 	private DateFormat dFormatter = new SimpleDateFormat("dd-MM-yyyy'@'HH:mm:ss");	
-	private Logger logger;
 	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
 	private ConfigurationNode rootNode;	
 	private HashMap<Integer, RewardObject> rewards = new HashMap<Integer, RewardObject>();
@@ -30,7 +28,7 @@ public class RewardHandler {
 	
 	
 	public boolean checkRewards(OnlineRewards instance, String uuid){
-		logger = instance.getLogger();
+		instance.getLogger();
 		configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
 		try {
 			Calendar cal = Calendar.getInstance();
@@ -56,7 +54,7 @@ public class RewardHandler {
 		return false;
 	}	
 	public void loadRewards(OnlineRewards instance){
-		 logger = instance.getLogger();
+		 instance.getLogger();
 		 
 		 configLoader = HoconConfigurationLoader.builder().setPath(instance.getdefaultConfig()).build();
 		 try{                	
@@ -68,9 +66,8 @@ public class RewardHandler {
      					String name = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Item").getValue().toString();
      					int amount = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Amount").getInt();
      					int meta = rootNode.getNode("SetRewards:","Reward:"+(i+1),"MetaID").getInt();
-     					int streak = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Streak").getInt();
-     					boolean isRandom = rootNode.getNode("SetRewards:","Reward:"+(i+1),"RandomReward").getBoolean();
-     					reward = new RewardObject(id, name, amount, meta, streak, isRandom);
+     					int streak = rootNode.getNode("SetRewards:","Reward:"+(i+1),"Streak").getInt();     					
+     					reward = new RewardObject(id, name, amount, meta, streak);
      					rewards.put(i+1, reward);
      				}
      				
@@ -82,9 +79,9 @@ public class RewardHandler {
          }
 	}
 	
-	public void addReward(OnlineRewards instance, int id, String name, int amount, int meta, int streak, boolean random){
+	public void addReward(OnlineRewards instance, int id, String name, int amount, int meta, int streak){
 		
-		reward = new RewardObject(id, name, amount, meta, streak, random);
+		reward = new RewardObject(id, name, amount, meta, streak);
 		rewards.put(id, reward);
 		instance.setRewards(rewards);		
 		

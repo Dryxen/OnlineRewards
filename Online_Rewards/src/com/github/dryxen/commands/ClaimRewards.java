@@ -19,7 +19,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.text.Text;
 
 import com.github.dryxen.Handlers.PlayerHandler;
@@ -62,14 +61,15 @@ public class ClaimRewards {
 	            				randomTimes = rootNode.getNode("PluginSettings:", "RandomAmount").getInt();
 	            			}catch(IOException e){
 	            				logger.error("config for randomAmount couldn't be found.");
-	            			}	            			
+	            			}
+	            			int streak = instance.getOnlinePlayers().get(uuid).getStreak();
 	            			rewards = instance.getRewards();
-	            			Inventory inventory = ((Player) src).getInventory();
+	            			Inventory inventory = ((Player) src).getInventory();	            			
 	            			randomNumber = (random.nextInt(rewards.size())+1);            			
 	            			if(inventory.size() < (randomNumber+35)){
-	            			  for(int i=0; i<randomTimes; i++){              				
+	            			  for(int i=0; i<randomTimes; i++){	            				
 	            				reward = rewards.get(randomNumber);
-	            				if(reward.isRandom()){	            				
+	            				if(reward.getStreak() <= streak){	            				
 	            				  ItemType type = game.getRegistry().getType(ItemType.class, reward.getName()).get();	            				 
 	            				  ItemStack item = ItemStack.builder().itemType(type).quantity(reward.getAmount()).build();
 	            				  DataQuery.of();

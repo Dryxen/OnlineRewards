@@ -2,7 +2,6 @@ package com.github.dryxen.commands;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -22,13 +21,12 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 public class CreateReward {
 	
-	private Logger logger;
 	private CommandSpec commandspec;
 	private RewardHandler handler = new RewardHandler();
 	private ConfigurationLoader<CommentedConfigurationNode> configLoader;	
 	private ConfigurationNode rootNode;
 	public CreateReward(OnlineRewards instance){
-		logger = instance.getLogger();
+		instance.getLogger();
 		this.commandspec = CommandSpec.builder()
 		        .description(Text.of("Create a time based Reward"))
 		        .permission("onlineRewards.command.claim")
@@ -37,8 +35,7 @@ public class CreateReward {
 		        		   GenericArguments.string(Text.of("Item")),
 		        		   GenericArguments.integer(Text.of("Amount")),
 		        		   GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.integer(Text.of("MetaID")))),
-		        		   GenericArguments.integer(Text.of("Streak")),
-		        		   GenericArguments.bool(Text.of("RandomReward"))
+		        		   GenericArguments.integer(Text.of("Streak"))		        		   
 		        		))
 		        .executor(new CommandExecutor() {	            
 		            public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
@@ -48,9 +45,7 @@ public class CreateReward {
 		                String item = args.<String>getOne("Item").get();
 		                int amount = args.<Integer>getOne("Amount").get();
 		                int metaID = 0;
-		                int streak = args.<Integer>getOne("Streak").get();
-		                boolean canRandom = args.<Boolean>getOne("RandomReward").get();
-		                
+		                int streak = args.<Integer>getOne("Streak").get();	                
 		                try{                	
 		            		rootNode = configLoader.load();	            	    
 		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"Item").setValue(item);
@@ -61,10 +56,9 @@ public class CreateReward {
 		            		}else{
 		            			rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"MetaID").setValue(metaID);
 		            		}
-		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"Streak").setValue(streak);
-		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"RandomReward").setValue(canRandom);
+		            		rootNode.getNode("SetRewards:","Reward:"+rewardNumber,"Streak").setValue(streak);		            		
 		            		configLoader.save(rootNode);
-		            		handler.addReward(instance, rewardNumber, item, amount, metaID, streak, canRandom);
+		            		handler.addReward(instance, rewardNumber, item, amount, metaID, streak);
 		            		
 		                }catch(IOException e){
 		               
